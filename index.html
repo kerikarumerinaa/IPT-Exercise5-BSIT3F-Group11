@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+    <title>Enhanced Registration Form</title>
+    <style>
+        body {
+            font-family: 'Varela Round', sans-serif;
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            background-color: #7FA1C3; 
+            padding: 20px;
+        }
+
+        form {
+            max-width: 400px; 
+            width: 100%; 
+            padding: 20px; 
+            background-color: #F5F7F8; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+            border-radius: 8px; 
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px; 
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #007BFF;
+            outline: none;
+        }
+
+        .error {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007BFF;
+            border: none;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #result {
+            margin-top: 20px;
+            text-align: center;
+            color: green;
+        }
+
+        .password-strength {
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+
+        .weak { color: red; }
+        .medium { color: orange; }
+        .strong { color: green; }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+
+            button {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <form id="registrationForm">
+        <h2>Registration Form</h2>
+        <div id="result"></div>
+        <div class="form-group">
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" name="firstName" placeholder="Enter your first name" required>
+            <span class="error" id="firstNameError"></span>
+        </div>
+        <div class="form-group">
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" name="lastName" placeholder="Enter your last name" required>
+            <span class="error" id="lastNameError"></span>
+        </div>
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+            <span class="error" id="usernameError"></span>
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            <span class="error" id="emailError"></span>
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <span class="error" id="passwordError"></span>
+            <div class="password-strength" id="passwordStrength"></div>
+        </div>
+        <div class="form-group">
+            <label for="repeatPassword">Repeat Password:</label>
+            <input type="password" id="repeatPassword" name="repeatPassword" placeholder="Repeat your password" required>
+            <span class="error" id="repeatPasswordError"></span>
+        </div>
+        <div class="form-group">
+            <label for="birthdate">Birthdate:</label>
+            <input type="date" id="birthdate" name="birthdate" required>
+            <span class="error" id="birthdateError"></span>
+        </div>
+        <button type="submit">Register</button>
+       
+    </form>
+    
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            function checkPasswordStrength(password) {
+                let strength = 0;
+                if (password.length >= 8) strength++;
+                if (password.match(/[a-z]+/)) strength++;
+                if (password.match(/[A-Z]+/)) strength++;
+                if (password.match(/[0-9]+/)) strength++;
+                if (password.match(/[$@#&!]+/)) strength++;
+
+                switch (strength) {
+                    case 0:
+                    case 1:
+                    case 2:
+                        return 'Weak';
+                    case 3:
+                    case 4:
+                        return 'Medium';
+                    case 5:
+                        return 'Strong';
+                }
+            }
+
+            $('#password').on('input', function() {
+                let strength = checkPasswordStrength($(this).val());
+                $('#passwordStrength').text('Password Strength: ' + strength)
+                    .removeClass('weak medium strong')
+                    .addClass(strength.toLowerCase());
+            });
+
+            $('#registrationForm').on('submit', function (e) {
+                e.preventDefault();
+
+                // Clear previous errors
+                $('.error').text('');
+                $('#result').text('');
+
+                // Client-side validation
+                let isValid = true;
+
+                if ($('#password').val() !== $('#repeatPassword').val()) {
+                    $('#repeatPasswordError').text('Passwords do not match');
+                    isValid = false;
+                }
+
+                if ($('#password').val().length < 8) {
+                    $('#passwordError').text('Password must be at least 8 characters long');
+                    isValid = false;
+                }
+
+                let birthdate = new Date($('#birthdate').val());
+                let today = new Date();
+                let age = today.getFullYear() - birthdate.getFullYear();
+                let m = today.getMonth() - birthdate.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < birthdate.getDate())) {
+                    age--;
+                }
+                if (age < 18) {
+                    $('#birthdateError').text('You must be at least 18 years old');
+                    isValid = false;
+                }
+
+                if (!isValid) return;
+
+                // AJAX request
+                $.ajax({
+                    type: 'POST',
+                    url: 'register.php',
+                    data: $(this).serialize(),
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.success) {
+                            $('#result').text('Registration successful!');
+                            $('#registrationForm')[0].reset();
+                        } else {
+                            if (response.errors) {
+                                $.each(response.errors, function(field, error) {
+                                    $('#' + field + 'Error').text(error);
+                                });
+                            } else {
+                                $('#result').text(response.error || 'An error occurred during registration.');
+                            }
+                        }
+                    },
+                    error: function () {
+                        $('#result').text('Error in submitting the form.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
